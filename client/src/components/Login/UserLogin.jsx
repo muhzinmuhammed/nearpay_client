@@ -4,7 +4,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate, Link } from 'react-router-dom';
 
-const userLogin = () => {
+const UserLogin = () => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [login, { isLoading }] = useLoginMutation(); // Destructure the mutation
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -128,4 +128,4 @@ const userLogin = () => {
   );
 };
 
-export default userLogin;
+export default UserLogin;
