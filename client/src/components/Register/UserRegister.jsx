@@ -1,27 +1,33 @@
-
-import { useRegisterMutation } from '../../features/api/userAuth/userAuth'; // Import the useRegisterMutation hook
+import { useState } from 'react';
+import { useRegisterMutation } from '../../features/api/userAuth/userAuth';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useNavigate,Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+ // Import eye icons
 
 const UserRegister = () => {
-  const [register, { isLoading }] = useRegisterMutation(); // Destructure the mutation
+  const [register, { isLoading }] = useRegisterMutation();
   const navigate = useNavigate();
 
+  // State to control password visibility
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   // Regex patterns for validation
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email format validation
-  const nameRegex = /^[a-zA-Z\s]{2,30}$/; // Name should be 2 to 30 characters long and only contain letters and spaces
-  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/; // Password must be at least 8 characters long and contain at least one letter, one number, and one special character
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const nameRegex = /^[a-zA-Z\s]{2,30}$/;
+  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const formData = new FormData(e.target); // Create FormData object from the form
+    const formData = new FormData(e.target);
     const values = {
       name: formData.get('name'),
       userEmail: formData.get('email'),
       password: formData.get('password'),
+      confirmPassword: formData.get('confirmPassword'),
     };
 
     // Validate inputs
@@ -40,6 +46,11 @@ const UserRegister = () => {
       return;
     }
 
+    if (values.password !== values.confirmPassword) {
+      toast.error('Passwords do not match.');
+      return;
+    }
+
     try {
       const response = await register(values).unwrap();
       toast.success(response.message);
@@ -48,7 +59,6 @@ const UserRegister = () => {
       }, 2000);
     } catch (err) {
       toast.error(err.data.message);
-      // Handle error (e.g., show error message)
     }
   };
 
@@ -99,42 +109,67 @@ const UserRegister = () => {
             </div>
 
             <div>
-              <div className="flex items-center justify-between">
-                <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
-                  Password
-                </label>
-
-              </div>
-              <div className="mt-2">
+              <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
+                Password
+              </label>
+              <div className="mt-2 relative">
                 <input
                   id="password"
                   name="password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   required
                   autoComplete="current-password"
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
+                >
+                   {showPassword ? "👁️" : "👁️‍🗨️"} 
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="confirmPassword" className="block text-sm font-medium leading-6 text-gray-900">
+                Confirm Password
+              </label>
+              <div className="mt-2 relative">
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  required
+                  autoComplete="new-password"
+                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword((prev) => !prev)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
+                >
+                  {showConfirmPassword ? "👁️" : "👁️‍🗨️"}
+                </button>
               </div>
             </div>
 
             <div>
               <button
                 type="submit"
-                disabled={isLoading} // Disable button while loading
+                disabled={isLoading}
                 className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               >
-                {isLoading ? 'Registering...' : 'Register'} {/* Change button text while loading */}
+                {isLoading ? 'Registering...' : 'Register'}
               </button>
             </div>
           </form>
           <p className="mt-10 text-center text-sm text-gray-500">
-          Are you already Account{' '}
+            Already have an account?{' '}
             <Link to="/login" className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
               Login
             </Link>
           </p>
-
-
         </div>
       </div>
     </>

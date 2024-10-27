@@ -1,24 +1,25 @@
-
-import { useLoginMutation } from '../../features/api/userAuth/userAuth'; // Import the useLoginMutation hook
+import { useState } from 'react';
+import { useLoginMutation } from '../../features/api/userAuth/userAuth';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate, Link } from 'react-router-dom';
+ // Import eye icons
 
 const UserLogin = () => {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const [login, { isLoading }] = useLoginMutation(); // Destructure the mutation
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const navigate = useNavigate()
+  const [login, { isLoading }] = useLoginMutation();
+  const navigate = useNavigate();
+
+  // Show/hide password state
+  const [showPassword, setShowPassword] = useState(false);
 
   // Regex patterns for validation
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email format validation
-  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/; // Password must be at least 8 characters long and contain at least one letter, one number, and one special character
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const formData = new FormData(e.target); // Create FormData object from the form
+    const formData = new FormData(e.target);
     const values = {
       userEmail: formData.get('email'),
       password: formData.get('password'),
@@ -47,9 +48,7 @@ const UserLogin = () => {
       }, 2000);
     } catch (err) {
       console.log(err);
-
       toast.error(err.data.message);
-      // Handle error (e.g., show error message)
     }
   };
 
@@ -87,31 +86,35 @@ const UserLogin = () => {
             </div>
 
             <div>
-              <div className="flex items-center justify-between">
-                <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
-                  Password
-                </label>
-
-              </div>
-              <div className="mt-2">
+              <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
+                Password
+              </label>
+              <div className="mt-2 relative">
                 <input
                   id="password"
                   name="password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'} // Toggle between text and password
                   required
                   autoComplete="current-password"
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)} // Toggle show/hide
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
+                >
+                 {showPassword ? "👁️" : "👁️‍🗨️"} 
+                </button>
               </div>
             </div>
 
             <div>
               <button
                 type="submit"
-                disabled={isLoading} // Disable button while loading
+                disabled={isLoading}
                 className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               >
-                {isLoading ? 'Logging in...' : 'Login'} {/* Change button text while loading */}
+                {isLoading ? 'Logging in...' : 'Login'}
               </button>
             </div>
           </form>
